@@ -150,6 +150,11 @@ while(@iterador <= @longitud)
 begin
 	set @iterador += 1
 	set @auxiliar = SUBSTRING(@string, @iterador, 1)
+		if(@auxc like '0' or @auxiliar like '0')
+	begin
+		set @suma = 0
+		break
+	end
 	set @auxiliar = CAST(@auxiliar as int)
 	while(@itanidado < @auxiliar)
 	begin
@@ -167,20 +172,61 @@ select dbo.ejer7(322) -- 12
 select dbo.ejer7(523) -- 30
 select dbo.ejer7(1234567) -- 5040
 select dbo.ejer7(530) 
+select dbo.ejer7(01255466) -- hay un error al enviar un 0 en 1er. lugar, se soluciona con la opcion 2
+
+/***[OPCION 2]***/
+alter function ejer7a(@numero varchar(20))
+returns int
+as
+begin
+declare @auxc char(1) = SUBSTRING(@numero, 1,1)
+declare @pn int = CAST(@auxc as int)
+declare @iterador int = 1, @itanidado int = 0, @suma int= 0
+declare @auxiliar char
+declare @longitud int = LEN(@numero)
+if(@auxc = '0') set @iterador = @longitud + 1 -- incremento en 1 al iterador para que no ingrese al while
+while(@iterador <= @longitud)
+begin
+	set @iterador += 1
+	set @auxiliar = SUBSTRING(@numero, @iterador, 1)
+	if(@auxiliar like '0')
+	begin
+		set @suma = 0
+		break
+	end
+	set @auxiliar = CAST(@auxiliar as int)
+	while(@itanidado < @auxiliar)
+	begin
+		set @suma = @pn + @suma
+		set @itanidado += 1 
+	end
+	set @pn = @suma
+	set @itanidado = 1		-- reseteo el iterador anidado
+end
+return @suma
+end
+---
+select dbo.ejer7a('543') -- 60
+select dbo.ejer7a('322') -- 12
+select dbo.ejer7a('523') -- 30
+select dbo.ejer7a('555') -- 125
+-- poniendo a prueba con ceros
+select dbo.ejer7a('0327')
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 8.	Cree una función que dado un string o atributo señale  V / F para indicar si hay una palabra dada, ‘JKILHOLAPP’, ‘HOLA’ -> V
 -------------------------------------------------------------------------------------------------------------------------------------
-alter function ejer8(@string varchar(20), @palabra varchar(4))
+alter function ejer8(@string varchar(20), @palabra varchar(20))
 returns char
 as
 begin
 declare @haypalabra char = 'F'
 declare @largostring int = LEN(@string)
-declare @auxstring varchar(4)
+declare @largopalabra int = LEN(@palabra)
+declare @auxstring varchar(20)
 declare @iterador int = 1
 while(@iterador <= @largostring)
 begin
-	set @auxstring = SUBSTRING(@string, @iterador, 4)
+	set @auxstring = SUBSTRING(@string, @iterador, @largopalabra)
 	if(@palabra = @auxstring)
 	begin
 		set @haypalabra = 'V'
@@ -195,7 +241,7 @@ end
 ---
 select dbo.ejer8('3dmHOL4APholA', 'HOLA')
 select dbo.ejer8('JEJOPEHOLAP', 'JOPE')
-select dbo.ejer8('31354546asdf14lm', 'asdf')
+select dbo.ejer8('31354546asdf14lm', 'asdf14l')
 
 /*----------------------------------[ OPCIÓN 2 PARA EL EJERCICIO 8 ]----------------------------------*/
 -- Esta función busca la palabra 'x' en la cadena y si no la encuentra, la arma con los carácteres a disposición
@@ -241,7 +287,25 @@ end
 	e.	5 -> Divorciado/a
 	f.	6 -> Concubinado/a
 -------------------------------------------------------------------------------------------------------------------------------------*/
-
+create function ejer9(@opcion int)
+returns varchar(17)
+as
+begin
+declare @op varchar(17)
+set @op=( 
+	case 
+		when @opcion = 1 then 'Soltero/a'
+		when @opcion = 2 then 'Casado/a'
+		when @opcion = 3 then 'Viudo/a'
+		when @opcion = 4 then 'Separado/a'
+		when @opcion = 5 then 'Divorciado/a'
+		when @opcion = 6 then 'Concubinado/a'
+		else 'Opcion Incorrecta'
+	end)
+return @op
+end
+--
+select dbo.ejer9(6)
 
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 10.	Cree una función que calcule el factorial de un numero o atributo, (4) = 1*2*3*4 = [24]
@@ -261,23 +325,77 @@ end
 --
 select dbo.ejer10(4)
 select dbo.ejer10(5)
+
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 11.	Cree una función que indique si un número o atributo es par o impar.
 -------------------------------------------------------------------------------------------------------------------------------------
-
-
+create function ejer11(@numero int)
+returns char(6)
+as
+begin
+declare @paroimpar char(5)
+if(@numero = 0) return 'Neutro'
+if(@numero%2=0)
+	set @paroimpar = 'Par'
+else
+	set @paroimpar = 'Impar'
+return @paroimpar
+end
+--
+select dbo.ejer11(16)
+select dbo.ejer11(15)
+select dbo.ejer11(0)
 
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 12.	Cree una función que elimine todos los espacios en blanco de un string dado.
 -------------------------------------------------------------------------------------------------------------------------------------
-
-
+create function ejer12(@string varchar(50))
+returns varchar(50)
+as
+begin
+declare @cadenaLimpia varchar(50) = ''
+declare @caracter char
+declare @longitud int = LEN(@string)
+declare @iterador int = 0
+while(@iterador <= @longitud)
+begin
+	set @caracter = SUBSTRING(@string, @iterador, 1)
+	if(@caracter <> '')
+	begin
+		set @cadenaLimpia = @cadenaLimpia + @caracter
+	end
+	set @iterador+=1
+end
+return @cadenaLimpia
+end
+---
+select dbo.ejer12('      Unasur - 2016 ')
 
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 13.	Cree una función que dada una cadena variable compuesta de nombre y apellido, 
 ---		devuelva el nombre solo en mayúsculas y el apellido solo en minúsculas.
 -------------------------------------------------------------------------------------------------------------------------------------
+create function ejer13(@nombres varchar(50))
+returns varchar(50)
+as
+begin
+declare @posicion int
+declare @upperlower varchar(50)
+declare @longitud int = LEN(@nombres)
+declare @iterador int = 0
+set @nombres = RTRIM(LTRIM(@nombres)) --Limpio la cadena de posibles espacios a los lados
+while(@iterador <= @longitud)
+begin
+	set @posicion = PATINDEX('% %', @nombres)
+	set @iterador+=1
+end
+set @upperlower = UPPER(SUBSTRING(@nombres, 1, @posicion)) + LOWER(SUBSTRING(@nombres, @posicion, @longitud))
 
+return @upperlower
+end
+--
+select dbo.ejer13('Jose Paredes')
+select dbo.ejer13('  Ingeniería Informática 2016') --probando el RTRIM Y LTRIM
 
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 14.	Cree una función que dada una frase convierta las vocales en numero según su orden, (Juan Perez) -> J51n P2r2z
