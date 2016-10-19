@@ -382,15 +382,9 @@ begin
 declare @posicion int
 declare @upperlower varchar(50)
 declare @longitud int = LEN(@nombres)
-declare @iterador int = 0
 set @nombres = RTRIM(LTRIM(@nombres)) --Limpio la cadena de posibles espacios a los lados
-while(@iterador <= @longitud)
-begin
 	set @posicion = PATINDEX('% %', @nombres)
-	set @iterador+=1
-end
 set @upperlower = UPPER(SUBSTRING(@nombres, 1, @posicion)) + LOWER(SUBSTRING(@nombres, @posicion, @longitud))
-
 return @upperlower
 end
 --
