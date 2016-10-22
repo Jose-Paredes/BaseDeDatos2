@@ -411,9 +411,149 @@ select dbo.ejer13('  Ingeniería Informática 2016') --probando el RTRIM Y LTRIM
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 14.	Cree una función que dada una frase convierta las vocales en numero según su orden, (Juan Perez) -> J51n P2r2z
 -------------------------------------------------------------------------------------------------------------------------------------
+alter function ejer14(@string varchar(20))
+returns varchar(20)
+as
+begin
+set @string = RTRIM(LTRIM(@string))
+declare @auxiliar char = ''
+declare @conversion varchar(20) = ''
+declare @longitud int = LEN(@string)
+declare @iterador int = 1
+while(@iterador < @longitud)
+begin
+	set @auxiliar = SUBSTRING(@string, @iterador,1)
+	set @auxiliar=(
+		case @auxiliar
+			when 'a' then '1'
+			when 'e' then '2'
+			when 'i' then '3'
+			when 'o' then '4'
+			when 'u' then '5'
+		else @auxiliar
+		end
+	)
+set @conversion+=@auxiliar
+set @iterador+=1
+end
+return @conversion
+end
+---
+select dbo.ejer14('        Informatica      ')
 
 
 ------------------------------------------------------------------------------------------------------------------------------------
 --- 15.	Cree una función que dada una cadena variables que pueden contener los 2 (dos) nombres y los 2 (dos) apellido de una persona, 
 --- separados por N espacios entre las palabras solo deje 1 (un) espacio para separar los nombres y apellidos.
 -------------------------------------------------------------------------------------------------------------------------------------
+create function ejer15(@string varchar(60))
+returns varchar(60)
+as
+begin
+set @string = RTRIM(LTRIM(@string))
+declare @longitud int = LEN(@string)
+declare @cadenaLimpia varchar(60) = ''
+declare @caracter char
+declare @iterador int = 0
+declare @space int = 0
+declare @posicion1 int = 0, @posicion2 int = 0
+while(@iterador <= @longitud)
+begin
+	set @caracter = SUBSTRING(@string, @iterador, 1)
+	if(@caracter <> '')
+	begin
+		set @cadenaLimpia = @cadenaLimpia + @caracter
+	end
+	else --si el carácter es un espacio
+	begin
+		while(SUBSTRING(@string, @iterador + 1, 1)) like '% %'
+			set @iterador+=1
+			set @caracter = ''
+			set @cadenaLimpia += @caracter						
+	end
+	set @iterador+=1
+end
+return @cadenaLimpia
+end
+---
+select dbo.ejer15('  Juan     Roman         Riquelme     JR10  ')
+
+------------------------------------------------------------------------------------------------------------------------------------
+--- 16- Cree una funcion que recibe una letra del abecedario y le devuelva su posición
+-------------------------------------------------------------------------------------------------------------------------------------
+alter function ejer16(@abc char)
+returns int
+as
+begin
+declare @posicion int
+set @posicion=(
+	case @abc
+	when 'a' then 1
+	when 'b' then 2
+	when 'c' then 3
+	when 'd' then 4
+	when 'e' then 5
+	when 'f' then 6
+	when 'g' then 7
+	when 'h' then 8
+	when 'i' then 9
+	when 'j' then 10
+	when 'k' then 11
+	when 'l' then 12
+	when 'm' then 13
+	when 'n' then 14
+	when 'ñ' then 15
+	when 'o' then 16
+	when 'p' then 17
+	when 'q' then 18
+	when 'r' then 19
+	when 's' then 20
+	when 't' then 21
+	when 'u' then 22
+	when 'v' then 23
+	when 'w' then 24
+	when 'x' then 25
+	when 'z' then 26
+	else ' '
+	end
+)
+return @posicion
+end
+---
+select dbo.ejer16('s')
+
+------------------------------------------------------------------------------------------------------------------------------------
+--- 17- Cree una función que dado unos números, diga cual es el menor y mayor de todos
+-------------------------------------------------------------------------------------------------------------------------------------
+alter function ejer17(@numero varchar(6))
+returns varchar(60)
+as
+begin
+declare @long int = LEN(@numero)
+declare @resultado varchar(60) 
+declare @menor int, @mayor int,@char char, @it int = 1, @aux int
+declare @men char, @may char
+set @menor = cast(SUBSTRING(@numero,1 ,1) as int)
+set @mayor = cast(SUBSTRING(@numero,1,1) as int)
+while @it <= @long
+begin
+	set @char = SUBSTRING(@numero, @it,1)
+	set @aux = CAST(@char as int)
+	if(@aux like 0 or @aux < @menor)
+	begin
+		set @menor = @aux
+	end
+	else if(@char >@mayor)
+	begin
+		set @mayor = @aux
+	end
+	set @it+=1
+end
+set @men = CAST(@menor as char)
+set @may = CAST(@mayor as char)
+set @resultado= 'El menor de todos es ' + @men + ' y el mayor ' + @may
+return @resultado
+end
+--s
+select dbo.ejer17('02482543')
+
