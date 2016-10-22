@@ -401,6 +401,7 @@ declare @longitud int = LEN(@nombres)
 set @nombres = RTRIM(LTRIM(@nombres)) --Limpio la cadena de posibles espacios a los lados
 	set @posicion = PATINDEX('% %', @nombres)
 set @upperlower = UPPER(SUBSTRING(@nombres, 1, @posicion)) + LOWER(SUBSTRING(@nombres, @posicion, @longitud))
+set @upperlower = (select dbo.ejer15(@upperlower)) --llamo a la función ejer15 para que elimine todos los espacios en blanco 
 return @upperlower
 end
 --
