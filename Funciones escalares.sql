@@ -557,3 +557,58 @@ end
 --s
 select dbo.ejer17('02482543')
 
+------------------------------------------------------------------------------------------------------------------------------------
+--- 18- Cree una funcion que recibe una cadena con un nombre y apellido, que devuela el 1er. y último caracter del nombre y apellido
+---		en mayúsculas, separados por 1 espacio. 'Jose Paredes' -> JosE ParedeS
+-------------------------------------------------------------------------------------------------------------------------------------
+alter function ejer18(@string varchar(50))
+returns varchar(50)
+as
+begin
+declare @mayus varchar(50)
+declare @pos int
+set @string = LTRIM((select dbo.ejer15(@string))) --llamo a la func. ejer15 para que elimine los espacios 'sucios' y solo deje las necesarias.
+declare @long int = LEN(@string) -- tomo la longitud de la nueva cadena libre de espacios 'sucios'
+set @pos = patindex('% %', @string)--obtiene la pos del 1er. espacio
+set @mayus = (select dbo.ejer1a(SUBSTRING(@string,1,@pos))) + SPACE(1) + (select dbo.ejer1a(SUBSTRING(@string, @pos+1, @long))) -- obtiene solo el nombre de la cadena; desde la pos 1 hasta la pos del espacio
+return @mayus
+end
+----
+select dbo.ejer18('  informatica       unasur   ')
+select dbo.ejer18('  diego       casco  ')
+
+----
+/***************************************	[OPCIÓN 2]	***********************************************/
+-- Esta variante puede recibir como parámetro una cadena compuesta de varios nombres y apellidos --
+/*****************************************************************************************************/
+----
+alter function ejer18a(@string varchar(50))
+returns varchar(50)
+as
+begin
+declare @stringul varchar(50) = ' '
+declare @char char
+declare @pos int, @iterador int = 0
+set @string = LTRIM((select dbo.ejer15(@string))) --llamo a la func. ejer15 para que elimine los espacios 'sucios' y solo deje las necesarias.
+declare @long int = LEN(@string) -- tomo la longitud de la nueva cadena libre de espacios 'sucios'
+declare @auxiliar varchar(50) = ''
+while @iterador <= @long
+begin
+	set @iterador+=1
+	set @char = SUBSTRING(@string, @iterador,1)--
+	if(@char not like ' ')
+	begin
+		set @auxiliar+=@char
+	end
+	else -- si el carácter es un espacio en blanco
+	begin
+		set @stringul = RTRIM(@stringul) + space(1) + (select dbo.ejer1a(@auxiliar)) -- concateno las cadenas simples
+		set @auxiliar = '' -- reseteo para poder alojar en ella otra cadena simple
+	end
+end
+return @stringul
+end
+-----
+select dbo.ejer18a('juan    roman   riquelme jr10  ')
+select dbo.ejer18a('  universidad autónoma   del   sur  UNASUR ')
+select dbo.ejer18a('base de datos ii ing diego casco')
