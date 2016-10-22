@@ -19,6 +19,22 @@ end
 --- 
 select dbo.ejer1('juan')
 
+------
+/*--------------------------- [OPCION 2] --------------------------*/
+-- devuelve la 1era. y la última letra en mayúsculas
+------
+create function ejer1a(@palabra varchar(50))
+returns varchar(50)
+as
+begin
+declare @aux varchar(50)
+set @palabra = LTRIM(@palabra)
+set @aux =UPPER(SUBSTRING(@palabra, 1,1)) + LOWER (SUBSTRING(@palabra, 2, len(@palabra)-2)) + UPPER(SUBSTRING(@palabra, len(@palabra),1))
+return @aux
+end
+--- 
+select dbo.ejer1a('juan')
+
 ----------------------------------------------------------------------------------------------
 --- 2.	Cree una función numérica que calcule el valor de una potencia Y para un numero dado X
 ----------------------------------------------------------------------------------------------
