@@ -30,7 +30,7 @@ as
 	set @tablas = RTRIM(LTRIM(@tablas)) 
 	set @longitud = LEN(@tablas)
 	set @posicion = PATINDEX('%,%', @tablas)
-	if @posicion <> 0 -- si se actualiza m·s de una columna
+	if @posicion <> 0 -- si se actualiza m√°s de una columna
 		begin			
 			SELECT count(*) FROM STRING_SPLIT(@tablas, ',')  
 			WHERE RTRIM(value) <> '';  
@@ -48,7 +48,7 @@ as
 		end
 	else -- solo si se actualiza una columna
 		begin
-		if @colum like 'dir'
+		if @colum like 'dir' -- verifica que columna fue actualizada
 			insert AUDITORIA select @usu, @fecha, @hora, 'update', 'emple', @reg, @colum, d.dir, i.dir from inserted i, deleted d
 		else if @colum like 'oficio'
 			insert AUDITORIA select @usu, @fecha, @hora, 'update', 'emple', @reg, @colum, d.oficio, i.oficio from inserted i, deleted d
