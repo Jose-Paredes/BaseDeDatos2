@@ -1,6 +1,7 @@
 /*
 	UPDATE emple
 */
+
 use db_review;
 go
 
@@ -19,25 +20,20 @@ as
 	set @hora = (select convert(char(8), getdate(), 108) as [hh:mm:ss]);
 	set @reg = (select top 1 emple_no from deleted)
 	set @colum = (STUFF((SELECT ',' + name FROM sys.columns WHERE object_id = OBJECT_ID('dbo.emple') 
-					AND  COLUMNS_UPDATED() & (POWER(2, column_id - 1)) <> 0 FOR XML PATH('')), 1, 1, ''));
-	
+				  AND  COLUMNS_UPDATED() & (POWER(2, column_id - 1)) <> 0 FOR XML PATH('')), 1, 1, ''));	
 	declare @tablas varchar(70)
 	declare @posicion int
 	declare @v1 varchar(70)
 	declare @v2 varchar(70)
 	declare @longitud int 
 	set @tablas = @colum	
-	set @tablas = RTRIM(LTRIM(@tablas)) --Limpio la cadena de posibles espacios a los lados
+	set @tablas = RTRIM(LTRIM(@tablas)) 
 	set @longitud = LEN(@tablas)
 	set @posicion = PATINDEX('%,%', @tablas)
 	if @posicion <> 0 -- si se actualiza más de una columna
-		begin
-
-			
+		begin			
 			SELECT count(*) FROM STRING_SPLIT(@tablas, ',')  
 			WHERE RTRIM(value) <> '';  
-
-
 			set @v1 = SUBSTRING(@tablas, 1, (@posicion-1)) -- apellido
 			set @v2 = SUBSTRING(@tablas, (@posicion+1), @longitud) -- oficio
 
